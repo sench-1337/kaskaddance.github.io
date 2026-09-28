@@ -1371,8 +1371,16 @@
       .site-footer>span{grid-column:2!important;grid-row:2!important;justify-self:end;text-align:right}
     }
 
+    .teacher-slider .teachers-title-line,
+    .teacher-slider .section-head h2 > .blue{display:block}
+    .teacher-slider .teachers-title-line{white-space:nowrap}
+    @media (min-width:681px){
+      .teacher-slider .section-head h2{max-width:none!important;font-size:clamp(72px,5.2vw,100px)!important}
+    }
+
     /* Mobile history cards: keep the perforation clear of the copy and let long stories scroll. */
     @media (max-width:680px){
+      .facts .section-head h2{line-height:.96!important}
       .project .ticket:not(.is-open)::before{
         right:-8px!important;
       }
@@ -1543,7 +1551,7 @@
 
     <section class="teacher-slider section" id="teachers" data-slider>
       <div class="section-head reveal">
-        <div><span class="eyebrow">Люди KASKAD</span><h2 class="display">Кто стоит за<br><span class="blue">KASKAD?</span></h2></div>
+        <div><span class="eyebrow">Люди KASKAD</span><h2 class="display"><span class="teachers-title-line">Кто стоит за</span><span class="blue">KASKAD?</span></h2></div>
       </div>
       <div class="teacher-rail reveal" data-rail tabindex="0" aria-label="Педагоги KASKAD">
         <article class="teacher-slide"><div class="teacher-portrait" style="--teacher-image:url('педагоги/Александр Беспалов.jpg');--teacher-position:center 43%" role="img" aria-label="Руководитель KASKAD Александр Беспалов"></div><div class="teacher-info"><span class="teacher-count">1 из 12</span><span class="teacher-role">Руководитель KASKAD</span><h3>Александр Беспалов</h3><div class="teacher-facts"><div><b>Преподаёт</b><span>28 лет</span></div><div><b>Танцует</b><span>36 лет</span></div></div><p class="teacher-quote">«Все должно быть мушкой, Вась!»</p><div class="teacher-controls" aria-label="Управление карточками педагогов"><button class="rail-button" type="button" data-direction="-1" aria-label="Предыдущий педагог">←</button><button class="rail-button" type="button" data-direction="1" aria-label="Следующий педагог">→</button></div></div></article>
