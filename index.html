@@ -1297,8 +1297,13 @@
       .facts .fact-note{font-size:13px!important;line-height:1.38}
     }
 
+    .teacher-slider .teacher-count{display:none!important}
+
     /* FINAL MOBILE ADAPTATION */
     @media (max-width:680px){
+      .display,.section-head h2,.gallery-head h2,.teacher-slider .teacher-info h3,.facts .fact-copy h3,.signup-copy h2,.kids-intro h2{
+        word-spacing:.11em!important
+      }
       .nav{
         width:calc(100% - 28px)!important;height:72px!important;padding:0 12px 0 15px!important;
         column-gap:8px!important;overflow:visible
@@ -1322,8 +1327,14 @@
         mix-blend-mode:screen;filter:brightness(1) drop-shadow(0 12px 28px rgba(0,0,0,.38))!important
       }
 
-      .gallery.is-playing .gallery-video{display:grid;place-items:center;background:var(--ink)!important}
-      .gallery.is-playing .gallery-video video{
+      .gallery.has-started{
+        height:auto!important;min-height:0!important;aspect-ratio:var(--concert-ratio,16/9);background:transparent!important
+      }
+      .gallery.has-started .gallery-head{display:none!important}
+      .gallery.has-started .gallery-video{display:grid;place-items:center;background:transparent!important}
+      .gallery.has-started .gallery-video::after{opacity:0!important}
+      .gallery.has-started .gallery-play{opacity:0!important;pointer-events:none!important}
+      .gallery.has-started .gallery-video video{
         width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important
       }
 
@@ -1332,6 +1343,11 @@
         scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:auto
       }
       .teacher-slider .teacher-slide{scroll-snap-align:center!important;scroll-snap-stop:always}
+      .teacher-slider .teacher-info{
+        top:44%!important;bottom:auto!important;height:auto!important;min-height:46%!important;overflow:visible!important
+      }
+      .teacher-slider .teacher-count{display:none!important}
+      .teacher-slider .teacher-role{padding-right:0!important}
 
       .site-footer{
         grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;
@@ -1372,6 +1388,7 @@
   <main id="main">
     <section class="hero section" id="top" aria-label="Главный экран">
       <video class="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="фото/hero-poster.jpg" disablepictureinpicture aria-hidden="true">
+        <source src="видео/hero-web.mp4" type="video/mp4">
         <source src="видео/IMG_6857.mp4" type="video/mp4">
         <source src="видео/IMG_6857.MP4" type="video/mp4">
         <source src="IMG_6857.MP4" type="video/mp4">
@@ -1610,12 +1627,12 @@
         const rail=slider.querySelector('[data-rail]');
         slider.querySelectorAll('[data-direction]').forEach(button=>button.addEventListener('click',()=>{
           const direction=Number(button.dataset.direction)||1;
-          const cards=[...rail.querySelectorAll(':scope > article')],card=cards[0],gap=parseFloat(getComputedStyle(rail).gap)||0,step=card?card.getBoundingClientRect().width+gap:Math.max(280,rail.clientWidth*.78);
-          const current=Math.max(0,Math.min(cards.length-1,Math.round(rail.scrollLeft/step)));
+          const cards=[...rail.querySelectorAll(':scope > article')],railLeft=rail.getBoundingClientRect().left,positions=cards.map(card=>card.getBoundingClientRect().left-railLeft+rail.scrollLeft);
+          const current=cards.reduce((closest,card,index)=>Math.abs(positions[index]-rail.scrollLeft)<Math.abs(positions[closest]-rail.scrollLeft)?index:closest,0);
           const target=Math.max(0,Math.min(cards.length-1,current+direction));
           const pageY=scrollY;
           button.blur();
-          rail.scrollTo({left:cards[target]?cards[target].offsetLeft:rail.scrollLeft+step*direction,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+          rail.scrollTo({left:positions[target]??rail.scrollLeft,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
           requestAnimationFrame(()=>scrollTo({top:pageY,behavior:'auto'}));
           setTimeout(()=>scrollTo({top:pageY,behavior:'auto'}),500);
         }));
@@ -1676,8 +1693,10 @@
       }
 
       const concertVideo=document.querySelector('#concert-video'),concertFrame=document.querySelector('.gallery-video'),concertSection=document.querySelector('.gallery'),concertPlay=document.querySelector('.gallery-play');
-      concertPlay.addEventListener('click',()=>{concertVideo.controls=true;concertVideo.play().catch(()=>{concertVideo.controls=false})});
-      const setConcertPlaying=playing=>{concertFrame.classList.toggle('is-playing',playing);concertSection.classList.toggle('is-playing',playing)};
+      const syncConcertRatio=()=>{if(concertVideo.videoWidth&&concertVideo.videoHeight)concertSection.style.setProperty('--concert-ratio',`${concertVideo.videoWidth}/${concertVideo.videoHeight}`)};
+      concertVideo.addEventListener('loadedmetadata',syncConcertRatio);
+      concertPlay.addEventListener('click',()=>{syncConcertRatio();concertSection.classList.add('has-started');concertVideo.controls=true;concertVideo.play().catch(()=>{concertVideo.controls=false;concertSection.classList.remove('has-started')})});
+      const setConcertPlaying=playing=>{concertFrame.classList.toggle('is-playing',playing);concertSection.classList.toggle('is-playing',playing);if(playing)concertSection.classList.add('has-started')};
       concertVideo.addEventListener('play',()=>setConcertPlaying(true));
       concertVideo.addEventListener('pause',()=>setConcertPlaying(false));
       concertVideo.addEventListener('ended',()=>setConcertPlaying(false));
